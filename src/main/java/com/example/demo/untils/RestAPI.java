@@ -4,7 +4,6 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 
-import com.example.demo.model.Survey;
 
 import java.lang.reflect.Field;
 import java.util.stream.Collectors;
@@ -60,9 +59,6 @@ public class RestAPI {
     }
 
     public static <T> void sort(String sortby, List<T> list, String sortDir) {
-        if(sortDir == null){
-            sortDir = "asc";
-        }
         Collections.sort(list, new Comparator<T>() {
             @Override
             public int compare(T item1, T item2) {
