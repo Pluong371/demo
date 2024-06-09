@@ -3,6 +3,7 @@ package com.example.demo.service;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.model.Survey;
+import com.example.demo.untils.RestAPI;
 
 import javax.json.*;
 import java.io.FileInputStream;
@@ -14,21 +15,8 @@ import java.util.Map;
 
 @Service
 public class SurveyServiceImpl implements SurveyService {
-    // private List<Survey> surveys;
-    // public void innit(){
-    // try{
-    // File fileSurvey = ResourceUtils.getFile("survey_dataset.json");
-    // ObjectMapper mapper = new ObjectMapper();
-    // surveys = mapper.readValue(fileSurvey,
-    // mapper.getTypeFactory().constructCollectionType(List.class, Survey.class));
-    // } catch (IOException e) {
-    // e.printStackTrace();
-    // surveys= new ArrayList<>();
-    //
-    // }
-    // }
     @Override
-    public List<Survey> getSurveys(Map<String, String> filters, String sortBy, List<String> fields, boolean count)
+    public List<?> getSurveys(Map<String, String> filters, String sortBy, List<String> fields, boolean count)
             throws IOException {
         InputStream fis = new FileInputStream("./src/main/resources/survey_dataset.json");
         JsonReader jsonReader = Json.createReader(fis);
@@ -40,7 +28,6 @@ public class SurveyServiceImpl implements SurveyService {
         List<Survey> surveys = new ArrayList<>();
         for (JsonObject jsonObject : jsonArrays.getValuesAs(JsonObject.class)) {
             Survey servey = new Survey();
-
             servey.setAge(jsonObject.getString("How old are you?"));
             servey.setTimestamp(jsonObject.getString("Timestamp", null));
             servey.setIndustry(jsonObject.getString("What industry do you work in?", null));
@@ -53,25 +40,31 @@ public class SurveyServiceImpl implements SurveyService {
             servey.setAdditionalContext(jsonObject.getString("If your job title needs additional context, please clarify here:",null));
             surveys.add(servey);
         }
+        if(filters != null) {
+            filters(filters, surveys);
+        }
+        if(sortBy != null){
+            sort(sortBy, surveys, sortBy);
+        }
+        if(fields!= null) {
+          return getfields(fields, surveys);
+        }
         return surveys;
     }
-
-    // public Survey getSurveyById(int id) {
-    // return surveys.stream()
-    // .filter(data -> true)
-    // .findFirst()
-    // .orElse(null);
-    // }
-    // private boolean matchesFilters(Survey survey, Map<String, String> filters){
-    // return true;
-    // }
-    // private Survey createSurvey(Survey data, List<String> fields){
-    // Survey survey = new Survey();
-    // return data;
-    // }
-
     @Override
     public Survey getSurveybyID(String id) {
         return null;
+    }
+    @Override
+    public void filters(Map<String, String> filters, List<Survey> list) {
+        RestAPI.filters(filters, list);
+    }
+    @Override
+    public List<JsonObject> getfields(List<String> fields, List<Survey> list) {
+       return RestAPI.getSelectField(list, fields);   
+    }
+    @Override
+    public void sort(String sortBy, List<Survey> list, String sortDir) {
+        RestAPI.sort(sortBy, list, sortDir);
     }
 }
