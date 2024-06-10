@@ -121,7 +121,6 @@ public class RestAPI {
                         field = key;
                         opString = "eq"; // default to equality if no operation is specified
                     }
-
                     return new FilterField(field, value, opString);
                 })
                 .collect(Collectors.toList());
