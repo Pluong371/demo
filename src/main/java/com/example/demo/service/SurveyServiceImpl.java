@@ -51,10 +51,7 @@ public class SurveyServiceImpl implements SurveyService {
         }
         return surveys;
     }
-    @Override
-    public Survey getSurveybyID(String id) {
-        return null;
-    }
+
     @Override
     public void filters(Map<String, String> filters, List<Survey> list) {
         RestAPI.filters(filters, list);

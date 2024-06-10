@@ -12,7 +12,6 @@ public interface SurveyService {
   List<?> getSurveys(Map<String, String> filters, String sortby, List<String> fields, boolean count)
       throws IOException;
 
-  Survey getSurveybyID(String id);
 
   void sort(String sortBy, List<Survey> list, String sortDir);
   void filters(Map<String, String> filters, List<Survey> list);

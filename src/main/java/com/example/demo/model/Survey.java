@@ -1,7 +1,7 @@
 package com.example.demo.model;
 
 public class Survey {
-    private Long id;
+
     private String timestamp;
     private String age;
     private String industry;
@@ -13,13 +13,6 @@ public class Survey {
     private String additionalContext;
     private String otherCurrency;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getTimestamp() {
         return timestamp;

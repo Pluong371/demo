@@ -4,7 +4,7 @@ package com.example.demo.model;
 import java.util.Arrays;
 
 public class Post {
-    private int id;
+
     private String title;
     private String description;
     private String content;
@@ -14,13 +14,9 @@ public class Post {
 
     }
 
-    public int getId() {
-        return id;
-    }
 
-    public void setId(int id) {
-        this.id = id;
-    }
+
+
 
     public String getTitle() {
         return title;
@@ -56,7 +52,7 @@ public class Post {
 
     @Override
     public String toString() {
-        return "Post [id=" + id + ", title=" + title + ", description=" + description + ", content=" + content +
+        return "Post [title=" + title + ", description=" + description + ", content=" + content +
                 ", tags=" + Arrays.toString(tags) + "]";
     }
 }
