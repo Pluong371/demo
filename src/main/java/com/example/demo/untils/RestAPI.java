@@ -4,6 +4,9 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.lang.reflect.Field;
 import java.util.stream.Collectors;
@@ -12,16 +15,19 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
 /**
  * RestAPI
  */
 public class RestAPI {
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public static List<JsonObject> getSelectField( List<?> list ,List<String> fields){
+    public static List<JsonNode> getSelectField(List<?> list, List<String> fields) {
         return list.stream()
-        .map(item -> filterFields(item, fields))
-        .collect(Collectors.toList());
+                .map(item -> filterFields(item, fields))
+                .collect(Collectors.toList());
     }
+
     public static <T> void filters(Map<String, String> filters, List<T> list) {
         List<FilterField> filterFields = convertFilters(filters);
         list.removeIf(item -> {
@@ -33,7 +39,6 @@ public class RestAPI {
             return false;
         });
     }
-    
 
     private static boolean checkFilterCondition(Object item, FilterField filterField) {
         try {
@@ -51,7 +56,7 @@ public class RestAPI {
                 case "lte":
                     return ((Comparable) fieldValue).compareTo(filterField.value) <= 0;
                 default:
-                    throw new IllegalArgumentException("Invalid operation: " + filterField.opString);
+                    return ((Comparable) fieldValue).compareTo(0) > 0;
             }
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new RuntimeException(e);
@@ -81,29 +86,29 @@ public class RestAPI {
         });
     }
 
-    private static JsonObject filterFields(Object item, List<String> fields) {
-        JsonObjectBuilder builder = Json.createObjectBuilder();
-        fields.forEach((field) ->{
+    private static JsonNode filterFields(Object item, List<String> fields) {
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        fields.forEach(field -> {
             try {
                 Field f = item.getClass().getDeclaredField(field);
                 f.setAccessible(true);
                 Object value = f.get(item);
-                if (value instanceof String) {
-                    builder.add(field, (String) value);
-                } else if (value instanceof Number) {
-                    builder.add(field, ((Number) value).doubleValue());
-                } else if (value instanceof Boolean) {
-                    builder.add(field, (Boolean) value);
-                } else {
-                    builder.add(field, value.toString());
+                if (value != null) {
+                    if (value instanceof Number) {
+                        objectNode.put(field, ((Number) value).toString());
+                    } else if (value instanceof Boolean) {
+                        objectNode.put(field, (Boolean) value);
+                    } else {
+                        objectNode.put(field, value.toString());
+                    }
                 }
             } catch (NoSuchFieldException | IllegalAccessException e) {
                 e.printStackTrace();
             }
         });
-        return builder.build();
+        return objectNode;
     }
-    
+
     private static List<FilterField> convertFilters(Map<String, String> filters) {
         return filters.entrySet().stream()
                 .map(entry -> {

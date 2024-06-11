@@ -1,9 +1,11 @@
 package com.example.demo.service;
 
+import org.springframework.boot.autoconfigure.sql.init.SqlR2dbcScriptDatabaseInitializer;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.model.Survey;
 import com.example.demo.untils.RestAPI;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import javax.json.*;
 import java.io.FileInputStream;
@@ -27,6 +29,7 @@ public class SurveyServiceImpl implements SurveyService {
         fis.close();
         List<Survey> surveys = new ArrayList<>();
         for (JsonObject jsonObject : jsonArrays.getValuesAs(JsonObject.class)) {
+
             Survey servey = new Survey();
             servey.setAge(jsonObject.getString("How old are you?"));
             servey.setTimestamp(jsonObject.getString("Timestamp", null));
@@ -35,33 +38,38 @@ public class SurveyServiceImpl implements SurveyService {
             servey.setJobTitle(jsonObject.getString("Job title", null));
             servey.setAnnualSalary(jsonObject.getString("What is your annual salary?", null));
             servey.setLocation(jsonObject.getString("Where are you located? (City/state/country)", null));
-            servey.setWorkExperience(jsonObject.getString("How many years of post-college professional work experience do you have?", null));
+            servey.setWorkExperience(jsonObject
+                    .getString("How many years of post-college professional work experience do you have?", null));
             servey.setOtherCurrency(jsonObject.getString("If \\\"Other,\\\" please indicate the currency here:", null));
-            servey.setAdditionalContext(jsonObject.getString("If your job title needs additional context, please clarify here:",null));
+            servey.setAdditionalContext(
+                    jsonObject.getString("If your job title needs additional context, please clarify here:", null));
             surveys.add(servey);
         }
-        if(filters != null) {
-            filters(filters, surveys);
+        // if (filters != null) {
+        // filters(filters, surveys);
+        // }
+        if (sortBy != null) {
+            sort(sortBy, surveys, null);
         }
-        if(sortBy != null){
-            sort(sortBy, surveys, sortBy);
-        }
-        if(fields!= null) {
-          return getfields(fields, surveys);
-        }
-        return surveys;
+        // if (fields.isEmpty()) {
+        return getfields(fields, surveys);
+        // }
+        // return surveys;
     }
 
     @Override
     public void filters(Map<String, String> filters, List<Survey> list) {
         RestAPI.filters(filters, list);
     }
+
     @Override
-    public List<JsonObject> getfields(List<String> fields, List<Survey> list) {
-       return RestAPI.getSelectField(list, fields);   
+    public List<JsonNode> getfields(List<String> fields, List<Survey> list) {
+        return RestAPI.getSelectField(list, fields);
     }
+
     @Override
     public void sort(String sortBy, List<Survey> list, String sortDir) {
         RestAPI.sort(sortBy, list, sortDir);
+        // asc desc
     }
 }

@@ -26,15 +26,11 @@ public class SurveyController {
             @RequestParam(required = false) List<String> fields,
             @RequestParam(required = false, defaultValue = "false") boolean count) throws IOException {
         List<?> surveys = surveyService.getSurveys(filters, sort, fields, false);
-        if (count) {
-            return surveys.size();
-        }
         return surveys;
     }
+
     public List<?> getSurveys() throws IOException {
         return surveyService.getSurveys(null, null, null, true);
     }
 
-    
-   
 }
