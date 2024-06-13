@@ -11,9 +11,7 @@ import javax.json.*;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class SurveyServiceImpl implements SurveyService {
@@ -22,13 +20,19 @@ public class SurveyServiceImpl implements SurveyService {
             throws IOException {
         InputStream fis = new FileInputStream("./src/main/resources/survey_dataset.json");
         JsonReader jsonReader = Json.createReader(fis);
-
         JsonArray jsonArrays = jsonReader.readArray();
-
         jsonReader.close();
         fis.close();
         List<Survey> surveys = new ArrayList<>();
+
+        Set<String> uniqueFields = new HashSet<>();
         for (JsonObject jsonObject : jsonArrays.getValuesAs(JsonObject.class)) {
+
+            if (uniqueFields.contains("How old are you?")) {
+
+                collectValues(jsonObject, uniqueFields);
+                uniqueFields.forEach(System.out::println);
+            }
 
             Survey servey = new Survey();
             servey.setAge(jsonObject.getString("How old are you?"));
@@ -55,6 +59,21 @@ public class SurveyServiceImpl implements SurveyService {
         return getfields(fields, surveys);
         // }
         // return surveys;
+    }
+
+    private void collectValues(JsonObject jsonObject, Set<String> uniqueValues) {
+        for (String key : jsonObject.keySet()) {
+            if (jsonObject.get(key).getValueType().equals(javax.json.JsonValue.ValueType.OBJECT)) {
+                collectValues(jsonObject.getJsonObject(key), uniqueValues);
+            } else if (jsonObject.get(key).getValueType().equals(javax.json.JsonValue.ValueType.ARRAY)) {
+                JsonArray jsonArray = jsonObject.getJsonArray(key);
+                for (JsonObject nestedObject : jsonArray.getValuesAs(JsonObject.class)) {
+                    collectValues(nestedObject, uniqueValues);
+                }
+            } else {
+                uniqueValues.add(jsonObject.getString(key, null));
+            }
+        }
     }
 
     @Override
